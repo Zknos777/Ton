@@ -1,13 +1,8 @@
 import cryptocompare, logging, asyncio, sqlite3
 from loguru import logger
-from aiogram import Bot, Dispatcher
-from sqlalchemy import create_engine, Integer, String
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy import insert, delete, update, select
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from typing import TypeVar, Type
+from aiogram import Bot
+from json import dump, loads
+from requests import get
 
 
 connect = sqlite3.connect('db.db')
@@ -30,9 +25,11 @@ async def check_and_send():
     logger.info('Бот запущен')
     while True:
         print('New iter')
-        usd = cryptocompare.get_price('TON', "USD")['TON']['USD']
-        rub = cryptocompare.get_price('TON', "RUB")['TON']['RUB']
-        eur = cryptocompare.get_price('TON', "EUR")['TON']['EUR']
+        data = get("https://tonapi.io/v2/rates?tokens=ton&currencies=ton%2Cusd%2Crub")
+        data2 = get("https://tonapi.io/v2/rates?tokens=ton&currencies=ton%2Ceur%2Crub")
+        rub = loads(data.text)["rates"]["TON"]["prices"]['RUB']
+        usd = loads(data.text)["rates"]["TON"]["prices"]['USD']
+        eur = loads(data2.                    text)["rates"]["TON"]["prices"]['EUR']
         print("Got new currencys")
         records = cursor.execute("SELECT * FROM database")
         for record in records:
