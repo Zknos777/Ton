@@ -1,7 +1,7 @@
-import cryptocompare, logging, asyncio, sqlite3
+import logging, asyncio, sqlite3
 from loguru import logger
 from aiogram import Bot
-from json import dump, loads
+from json import loads
 from requests import get
 
 
@@ -24,12 +24,14 @@ bot = Bot(token=API_TOKEN)
 async def check_and_send():
     logger.info('Бот запущен')
     while True:
+        await asyncio.sleep(3)
         logger.info('New iter...')
-        data = get("https://tonapi.io/v2/rates?tokens=ton&currencies=ton%2Cusd%2Crub")
-        data2 = get("https://tonapi.io/v2/rates?tokens=ton&currencies=ton%2Ceur%2Crub")
+        data = get("https://tonapi.io/v2/rates?tokens=ton&currencies=ton%2Cusd%2Crub")        
         rub = loads(data.text)["rates"]["TON"]["prices"]['RUB']
         usd = loads(data.text)["rates"]["TON"]["prices"]['USD']
-        eur = loads(data2.                    text)["rates"]["TON"]["prices"]['EUR']
+        await asyncio.sleep(3)
+        data2 = get("https://tonapi.io/v2/rates?tokens=ton&currencies=ton%2Ceur%2Crub")
+        eur = loads(data2.text)["rates"]["TON"]["prices"]['EUR']
         records = cursor.execute("SELECT * FROM database")
         for record in records:
           user_id, currency, value = record
@@ -84,7 +86,6 @@ async def check_and_send():
                 logger.info('Ключ удален')
                 
         await asyncio.sleep(2)
-        logger.info("Чекер запущен")
 
 
 if __name__ == '__main__':
