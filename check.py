@@ -24,20 +24,19 @@ bot = Bot(token=API_TOKEN)
 async def check_and_send():
     logger.info('Бот запущен')
     while True:
-        print('New iter')
+        logger.info('New iter...')
         data = get("https://tonapi.io/v2/rates?tokens=ton&currencies=ton%2Cusd%2Crub")
         data2 = get("https://tonapi.io/v2/rates?tokens=ton&currencies=ton%2Ceur%2Crub")
         rub = loads(data.text)["rates"]["TON"]["prices"]['RUB']
         usd = loads(data.text)["rates"]["TON"]["prices"]['USD']
         eur = loads(data2.                    text)["rates"]["TON"]["prices"]['EUR']
-        print("Got new currencys")
         records = cursor.execute("SELECT * FROM database")
         for record in records:
           user_id, currency, value = record
           if value[0] == '>':
             if currency == 'USD':  
               if usd > float(value[1:]):
-                await bot.send_message(user_id, f"⚠ Курс TON/USD превысил ⬆ {float(value[1:])}\nНа данный момент курс: {cryptocompare.get_price('TON', 'USD')['TON']['USD']}")
+                await bot.send_message(user_id, f"⚠ Курс TON/USD превысил ⬆ {float(value[1:])}\nНа данный момент курс: {round(usd, 2)}")
                 logger.info('Оповещание сработано')
                 cursor.execute(f"DELETE FROM database WHERE user_id={user_id}")
                 connect.commit()
@@ -45,7 +44,7 @@ async def check_and_send():
                 
             if currency == 'EUR':  
               if eur > float(value[1:]):
-                await bot.send_message(user_id, f"⚠ Курс TON/EUR превысил ⬆ {float(value[1:])}\nНа данный момент курс: {cryptocompare.get_price('TON', 'EUR')['TON']['EUR']}")
+                await bot.send_message(user_id, f"⚠ Курс TON/EUR превысил ⬆ {float(value[1:])}\nНа данный момент курс: {round(eur, 2)}")
                 logger.info('Оповещание сработано')
                 cursor.execute(f"DELETE FROM database WHERE user_id={user_id}")
                 connect.commit()
@@ -53,7 +52,7 @@ async def check_and_send():
                 
             if currency == 'RUB':  
               if rub > float(value[1:]):
-                await bot.send_message(user_id, f"⚠ Курс TON/RUB превысил ⬆ {float(value[1:])}\nНа данный момент курс: {cryptocompare.get_price('TON', 'RUB')['TON']['RUB']}")
+                await bot.send_message(user_id, f"⚠ Курс TON/RUB превысил ⬆ {float(value[1:])}\nНа данный момент курс: {round(rub, 2)}")
                 logger.info('Оповещание сработано')
                 cursor.execute(f"DELETE FROM database WHERE user_id={user_id}")
                 connect.commit()
@@ -62,23 +61,23 @@ async def check_and_send():
           if value[0] == '<':
             if currency == 'USD':  
               if usd < float(value[1:]):
-                await bot.send_message(user_id, f"⚠ Курс TON/USD менее ⬇ {float(value[1:])}\nНа данный момент курс: {cryptocompare.get_price('TON', 'USD')['TON']['USD']}")
+                await bot.send_message(user_id, f"⚠ Курс TON/USD менее ⬇ {float(value[1:])}\nНа данный момент курс: {round(usd, 2)}")
                 logger.info('Оповещание сработано')
                 cursor.execute(f"DELETE FROM database WHERE user_id={user_id}")
                 connect.commit()
                 logger.info('Ключ удален')
                 
             if currency == 'EUR':  
-              if usd < float(value[1:]):
-                await bot.send_message(user_id, f"⚠ Курс TON/EUR менее ⬇ {float(value[1:])}\nНа данный момент курс: {cryptocompare.get_price('TON', 'EUR')['TON']['EUR']}")
+              if eur < float(value[1:]):
+                await bot.send_message(user_id, f"⚠ Курс TON/EUR менее ⬇ {float(value[1:])}\nНа данный момент курс: {round(eur, 2)}")
                 logger.info('Оповещание сработано')
                 cursor.execute(f"DELETE FROM database WHERE user_id={user_id}")
                 connect.commit()
                 logger.info('Ключ удален')
                 
             if currency == 'RUB':  
-              if usd < float(value[1:]):
-                await bot.send_message(user_id, f"⚠ Курс TON/USD менее ⬇ {float(value[1:])}\nНа данный момент курс: {cryptocompare.get_price('TON', 'RUB')['TON']['RUB']}")
+              if rub < float(value[1:]):
+                await bot.send_message(user_id, f"⚠ Курс TON/RUB менее ⬇ {float(value[1:])}\nНа данный момент курс: {round(rub, 2)}")
                 logger.info('Оповещание сработано')
                 cursor.execute(f"DELETE FROM database WHERE user_id={user_id}")
                 connect.commit()
